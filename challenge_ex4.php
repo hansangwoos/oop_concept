@@ -57,66 +57,74 @@ class StudentGrades {
     public function __construct($student_name, $student_number) {
         $this->student_name = $student_name;
         $this->student_number = $student_number;    
-        $this->score_array = [
-            "수학"=>['score' => 0,"credit" => 0],
-            "영어"=>['score' => 0,"credit" => 0],
-            "과학"=>['score' => 0,"credit" => 0],
-            "체육"=>['score' => 0,"credit" => 0],
-        ];
+        $this->score_array = [];
         $this->total_score = 0;
     }
 
     public function addSubject($subjectName,$score,$credit){
-        if($this->score_array[$subjectName]){
-            
-            if($this->score_array[$subjectName]["score"] != 0 || $this->score_array[$subjectName['credit'] != 0]){
-                if($score > 0 && $score <= 100){
-                    $this->score_array[$subjectName]["score"] = $score;
-                }
-                if($credit >= 1 && $credit <= 4){
-                    $this->score_array[$subjectName]["credit"] = $credit;
-                }
-            }else {
-                return "이미 등록된 과목입니다";
-            }
-        }else {
-            return "없는 과목입니다.";
+        // 1 중복체크
+        if(array_key_exists($subjectName,$this->score_array)){
+            return "이미 등록된 과목입니다 {$subjectName}";
         }
+        // 2 점수검증
+        if($score < 0 || $score > 100){
+            return "점수는 0~100 사이여야 합니다.";
+        }
+        // 3 학점검증
+        if($credit < 1|| $credit > 5){
+            return "학점은 1~5 사이여야 합니다.";
+        }
+        // 4 과목추가
+        $this->score_array[$subjectName] = [
+            "score" => $score,
+            "credit" => $credit,
+        ];
+        
+        
+        return "{$subjectName} 과목이 추가 되었습니다 {$score} 점, {$credit} 학점";
     }
 
-    public function updateScroe($subjectName,$newscore){
-        if($this->score_array[$subjectName]){
-            if($newscore > 0 && $newscore <= 100){
-            $this->score_array[$subjectName]["score"] = $newscore;
-            }else {
-                return "과목을 찾을 수 없습니다.";
-            }
+    public function updateScore($subjectName,$newscore)
+    {
+        if(!array_key_exists($subjectName,$this->score_array)){
+            return "과목을 찾을 수 없습니다.";
         }
+
+         if($newscore < 0 || $newscore > 100){
+            return "점수는 0~100 사이여야 합니다.";
+        }
+
+        // 점수 업데이트
+        $old_array = $this->score_array[$subjectName]['score'];
+        $this->score_array[$subjectName]['score'] = $newscore;
+
+        return "{$subjectName}의 점수가 {$old_array}에서 {$newscore}로 수정 되었습니다";
     }
 
     public function removeSubject( $subjectName ){
-        if($this->score_array[$subjectName]){
-            unset($this->score_array[$subjectName]);
+        if (!array_key_exists($subjectName, $this->score_array)) {
+            return "과목을 찾을 수 없습니다: {$subjectName}";
         }
+        
+        unset($this->score_array[$subjectName]);
+        return "{$subjectName} 과목이 삭제되었습니다";
     }
 
     public function calculateGPA(){
-        if(is_array($this->score_array)){
-
-            $total_point = 0;
-            $total_credit = 0;
-
-            foreach($this->score_array as $key => $value){
-                if($value['score']){
-                    $gradePoint = $this->getGradePoint($value['score']);
-                }
-
-                $total_point +=  $value['crdit']*$gradePoint;
-                $total_credit += $value['credit'];
-            }
-
-            return $total_credit > 0 ? $total_point/$total_credit :0.0;
+        if(empty($this->score_array)){
+            return "0.0";
         }
+
+        $total_point = 0;
+        $total_credit = 0;
+
+        foreach($this->score_array as $key => $val){
+            $gradePoint = $this->getGradePoint($val["score"]);
+            $total_point += $val['credit']*$gradePoint;
+            $total_credit += $val['credit'];
+        }
+
+        return $total_credit > 0 ? round($total_point / $total_credit, 2) : 0.0;
     }
 
     public function getGradePoint($score){
@@ -128,8 +136,79 @@ class StudentGrades {
     }
 
     public function getReport(){
+        $report = "=== {$this->student_name}({$this->student_number}) 성적표 ===\n";
         
+        if (empty($this->score_array)) {
+            return $report . "등록된 과목이 없습니다.\n";
+        }
+
+        $totalCredit = 0;
+
+        foreach($this->score_array as $key => $val){
+            $grade = $this->getGradePoint($val['score']);
+            $report .= "{$key} : {$val['score']} 점 {$val['credit']} 학점 {$grade} 등급";
+            $totalCredit += $val['credit'];
+        }
+
+        $gpa = $this->calculateGPA();
+        
+        $report .= "------------------------\n";
+        $report .= "총 학점: {$totalCredit}학점\n";
+        $report .= "평균 학점: {$gpa}\n";
+        
+        return $report;
+
+    }
+
+    public function isHonorStudent() {
+        if (empty($this->score_array)) {
+            return false;
+        }
+        
+        // 1. 평균 학점 3.5 이상 체크
+        $gpa = $this->calculateGPA();
+        if ($gpa < 3.5) {
+            return false;
+        }
+        
+        // 2. 모든 과목이 C(70점) 이상인지 체크
+        foreach ($this->score_array as $subject => $data) {
+            if ($data['score'] < 70) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 }
+
+
+//   🎮 테스트 코드
+echo "<h2>🎓 학생 성적 관리 시스템 테스트</h2>";
+
+$student = new StudentGrades("홍길동", "20240401");
+
+echo "<h3>=== 과목 추가 테스트 ===</h3>";
+echo "<p>" . $student->addSubject("수학", 95, 3) . "</p>";
+echo "<p>" . $student->addSubject("영어", 88, 2) . "</p>";
+echo "<p>" . $student->addSubject("과학", 76, 3) . "</p>";
+echo "<p>" . $student->addSubject("수학", 90, 3) . "</p>"; // 중복 테스트
+echo "<p>" . $student->addSubject("체육", 150, 2) . "</p>"; // 잘못된 점수
+
+echo "<h3>=== 성적 수정 테스트 ===</h3>";
+echo "<p>" . $student->updateScore("영어", 92) . "</p>";
+echo "<p>" . $student->updateScore("음악", 85) . "</p>"; // 없는 과목
+
+echo "<h3>=== 성적표 ===</h3>";
+echo "<pre>" . $student->getReport() . "</pre>";
+
+echo "<h3>=== 학점 계산 ===</h3>";
+echo "<p>평균 학점: " . $student->calculateGPA() . "</p>";
+echo "<p>우등생 여부: " . ($student->isHonorStudent() ? "✅ 우등생입니다!" : "❌ 더 열심히 하세요!") . "</p>";
+
+echo "<h3>=== 과목 삭제 테스트 ===</h3>";
+echo "<p>" . $student->removeSubject("과학") . "</p>";
+echo "<pre>" . $student->getReport() . "</pre>";
+
 
 ?>
