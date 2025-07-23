@@ -61,5 +61,34 @@ $myHouse->visitHouse(); // 환영 메시지 출력 - 가능 !
 $myHouse->getImportant("12345"); // 성공
 $myHouse->getImportant("123"); // 실패 
 
+///////////////////////////////////////////////////////
+
+// Protected - 접근제어자 이어서
+
+class Family {
+    public $fmailyName ;
+    private $familyPassword;
+    protected $fmailyRule;
+
+    protected function getFamilyRule(){
+        return $this->fmailyRule;
+    }
+}
+
+class Son extends Family{
+    // protected 는 자식클래스에서 접근가능
+    public function checkRule(){
+        echo "우리집 규칙은요 ~ {$this->getfamilyRule()}";
+
+        // private 는 자식 클래스도 접근 못함
+        // echo $this->fmailyPassword;
+    }
+}
+
+$son = new Son();
+$son->checkRule();
+
+// echo $son->fmailyRule;  <- 외부에서는 protected 접근 불가
+
 
 ?>
