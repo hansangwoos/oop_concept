@@ -5,5 +5,6 @@ PHP에서 oop와 클래스 그리고 객체를 직접 구현하며 학습하는 
 
 ## 파일 별 설명
 oop_index.php = 레거시코드 function 을 class를 사용해서 객체 지향으로 만듬
+access_modifier.php = 접근제어자 개념과 이해
 
 
