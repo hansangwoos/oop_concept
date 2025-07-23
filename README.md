@@ -35,6 +35,8 @@ PHP 객체지향(OOP) 개념을 실습하며 학습하기 위한 프로젝트입
 | `challenge_ex2.php`   | 연습 문제 2                                           |
 | `challenge_ex3.php`   | 연습 문제 3                                           |
 | `challenge_ex4.php`   | 연습 문제 4                                           |
+| `inheritance.php`     | 상속(inheritance) 의 개념                             |
+| `Protected_ex.php`    | 접근제어자 (protected) 의 개념 및 예제                |
 
 > 각 연습 문제는 실제 클래스 및 메서드를 구현하며 OOP 개념을 체화할 수 있도록 설계됨.
 
@@ -56,6 +58,7 @@ PHP 객체지향(OOP) 개념을 실습하며 학습하기 위한 프로젝트입
 - 클래스 선언 및 인스턴스화
 - 생성자와 소멸자 이해
 - 접근 제어자 (public, private, protected)
+- 상속의 개념 이해 (inheritance)
 - 메서드와 속성 다루기
 - 연습 문제를 통한 직접 구현 연습
 
