@@ -1,5 +1,5 @@
 <?php 
-// 문제 3: 간단한 계산기 클래스
+// 실전예제 challenge 3
 
 /**
  요구사항:
@@ -87,4 +87,3 @@ $calc2 = new Calculator(15, 0);
 echo "\n=== ⚠️ 예외 상황 ===\n";
 echo $calc2->divide() . "\n";
 ?>
-
